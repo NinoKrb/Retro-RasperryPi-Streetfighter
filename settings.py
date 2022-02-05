@@ -12,6 +12,9 @@ class Settings():
     path_image = os.path.join(asset_file, "images")
     path_storage = os.path.join(base_file, "storage")
 
+    # Specific paths
+    path_background = os.path.join(path_image, "backgrounds")
+
     title = "Streetfighter - RaspberryPi"
     fps = 60
 
