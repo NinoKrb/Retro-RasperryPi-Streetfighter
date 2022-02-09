@@ -14,6 +14,7 @@ class Settings():
 
     # Specific paths
     path_background = os.path.join(path_image, "backgrounds")
+    path_player = os.path.join(path_image, "players")
 
     title = "Streetfighter - RaspberryPi"
     fps = 60

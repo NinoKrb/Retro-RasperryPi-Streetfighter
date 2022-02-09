@@ -1,6 +1,7 @@
 import pygame, os
 from settings import Settings
 from classes.background import Background
+from classes.player import Player
 
 class Game():
     def __init__(self):
@@ -14,6 +15,7 @@ class Game():
         self.fps = pygame.time.Clock()
 
         self.background = Background(Settings.background_image)
+        self.player = Player(1, (250,250), 'fallback.png', ['idle', 'run'])
         self.running = True
 
     def run(self):
@@ -22,10 +24,11 @@ class Game():
             self.draw()
 
     def update(self):
-        pass
+        self.player.update()
 
     def draw(self):
         self.background.draw(self.screen)
+        self.player.draw(self.screen)
         pygame.display.flip()
 
 
