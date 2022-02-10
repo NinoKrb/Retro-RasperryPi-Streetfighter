@@ -23,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.pos = { 'x': 0, 'y': 0 }
         self.flip = False
         self.animation_set = self.load_animation_set(animations)
-        self.action_manager = Action({ 'name': 'idle', 'loop': True })
+        self.action_manager = Action({ 'name': 'idle', 'loop': False })
         self.animation_set.change_current_animation(self.action_manager.current_action['name'])
         self.update_sprite(os.path.join('players', 'player_1', self.fallback_image))
 
@@ -70,7 +70,9 @@ class Player(pygame.sprite.Sprite):
             frame = os.path.join('players', 'player_1', 'animations', self.animation_set.current_animation['name'], frame)
             self.update_sprite(frame)
             if self.animation_set.current_animation['current_frame'] == 0:
+                print("New Animation")
                 next_action = self.action_manager.is_next_action_queued()
+                print(next_action)
                 if next_action:
                     print("Change to queued action")
                     self.action_manager.change_action(next_action)
