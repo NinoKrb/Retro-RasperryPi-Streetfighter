@@ -21,3 +21,6 @@ class Settings():
 
     # Assets
     background_image = "background.png"
+
+    # Player
+    player_size = (250,250)
