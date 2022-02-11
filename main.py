@@ -2,6 +2,8 @@ import pygame, os
 from settings import Settings
 from classes.background import Background
 from classes.player import Player
+from classes.floor import Floor
+from classes.arena import Arena
 
 class Game():
     def __init__(self):
@@ -14,8 +16,8 @@ class Game():
         self.screen = pygame.display.set_mode((Settings.window_width, Settings.window_height))
         self.fps = pygame.time.Clock()
 
-        self.background = Background(Settings.background_image)
-        self.player = Player(1, (250,250), 'fallback.png', ['idle', 'run'], 2, (144, 200, 232))
+        self.arena = Arena(Settings.background_image, (0,Settings.window_height - 50), [Settings.window_width,100])
+        self.player = Player(1, Settings.player_size, (Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), 'fallback.png', ['idle', 'run'], 10, (144, 200, 232))
         self.running = True
 
     def run(self):
@@ -26,10 +28,10 @@ class Game():
             self.draw()
 
     def update(self):
-        self.player.update()
+        self.player.update(self)
 
     def draw(self):
-        self.background.draw(self.screen)
+        self.arena.draw(self.screen)
         self.player.draw(self.screen)
         pygame.display.flip()
 
@@ -39,22 +41,29 @@ class Game():
                 self.running = False
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_d:
-                    self.player.change_direction('right')
-                    self.player.flip = True
+                if event.key == pygame.K_d or event.key == pygame.K_a:
+                    if event.key == pygame.K_a:
+                        self.player.change_direction('left')
+                        self.player.flip = False
+                    else:
+                        self.player.change_direction('right')
+                        self.player.flip = True
                     self.player.action_manager.force_change_action('run', True)
+                    self.player.animation_set.change_current_animation(self.player.action_manager.current_action['name'])
                     self.player.start_moving()
 
-                if event.key == pygame.K_a:
-                    self.player.change_direction('left')
-                    self.player.flip = False
-                    self.player.action_manager.force_change_action('run', True)
-                    self.player.start_moving()
+                if event.key == pygame.K_SPACE:
+                    self.player.jump()
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_d or event.key == pygame.K_a:
+                    if event.key == pygame.K_d:
+                        self.player.flip = False
+                    else:
+                        self.player.flip = True
                     self.player.stop_moving()
                     self.player.action_manager.reset_action()
+                    self.player.action_manager.clear_queue()
                     self.player.animation_set.change_current_animation(self.player.action_manager.current_action['name'])
 
 
