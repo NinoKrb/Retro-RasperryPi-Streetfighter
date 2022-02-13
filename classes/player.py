@@ -13,22 +13,35 @@ from classes.action import Action
 class Player(pygame.sprite.Sprite):
     def __init__(self, id, size, pos, fallback_image, animations, speed, colorkey):
         super().__init__()
+
+        # Essential
         self.id = id
+
+        # Sprite
         self.fallback_image = fallback_image
         self.size = size
         self.colorkey = colorkey
+
+        # Movement
         self.speed = speed
         self.pos = { 'x': pos[0], 'y': pos[1] }
         self.direction = None
         self.moving = False
         self.flip = False
+
+        # Gravity
+        self.is_jumping = False
+        self.player_y_momentum = 0
+
+        self.moving = {'right': False, 'left': False}
+        self.jumps_left = 2
+
+
+        # Animation & Actions
         self.animation_set = self.load_animation_set(animations)
         self.action_manager = Action({ 'name': 'idle', 'loop': False })
         self.animation_set.change_current_animation(self.action_manager.current_action['name'])
         self.update_sprite(os.path.join('players', 'player_1', self.fallback_image))
-
-        self.is_jumping = False
-        self.jumps_left = 2
 
     def load_animation_set(self, animations):
         animation_objects = []
@@ -74,20 +87,45 @@ class Player(pygame.sprite.Sprite):
     def update(self, game):
         self.game = game
         self.process_animation()
+        self.move_velocity()
         self.gravity()
         self.move()
 
     def gravity(self):
+        # Gravity
+        self.player_movement[1] += self.player_y_momentum
+        self.player_y_momentum += Settings.player_y_momentum
+
+        # Limit falling speed
+        if self.player_y_momentum > Settings.player_max_y_momentum:
+            self.player_y_momentum = Settings.player_max_y_momentum
+
+
+        #self.collisions = self.move(self.game.map.tiles)
+
+        #if self.collisions['bottom']:
+        #    self.player_y_momentum = 0
+
+        #    if self.is_jumping == True:
+        #        self.jumps_left = 2
+        #        self.is_jumping = False
+
+        #if self.collisions['top']:
+        #    self.player_y_momentum = 0
+
+
+    """
+    def gravity(self):
         if self.is_jumping:
             self.jump_velocity += 10
-            if self.jump_velocity < 300:
+            if self.jump_velocity < 600:
                 self.pos['y'] -= 10
             else:
                 self.is_jumping = False
 
         print(self.rect)
         if not pygame.sprite.collide_rect(self, self.game.arena.floor):
-            self.pos['y'] += 1
+            self.pos['y'] += 5
         else:
             self.jumps_left = 2
             self.is_jumping = False
@@ -95,12 +133,33 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = self.game.arena.floor.rect.top
             self.set_coords()
             print(self.rect)
+    """
 
-    def jump(self):
-        if self.jumps_left > 1:
-            self.jumps_left -= 1
+    def jump(self, force=False):
+        if self.is_jumping == False or self.jumps_left > 0 or force == True:
             self.is_jumping = True
-            self.jump_velocity = 0
+            self.player_y_momentum = Settings.player_jump_height # Jump height
+            self.jumps_left -= 1
+
+    def move_velocity(self):
+        # Reset movement velocity
+        self.player_movement = [0, 0]
+
+        # Movement direction
+        if self.moving['right']:
+            if self.sprinting['right'] and self.collisions['bottom']:
+                self.player_movement[0] += Settings.player_sprinting_speed
+            else:
+                self.player_movement[0] += Settings.player_speed
+            if self.is_jumping == False:
+                self.is_walking = True
+        if self.moving['left']:
+            if self.sprinting['left'] and self.collisions['bottom']:
+                self.player_movement[0] -= Settings.player_sprinting_speed
+            else:
+                self.player_movement[0] -= Settings.player_speed
+            if self.is_jumping == False:
+                self.is_walking = True
 
     def process_animation(self):
         frame = self.animation_set.play_animation()
