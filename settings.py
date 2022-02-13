@@ -24,3 +24,14 @@ class Settings():
 
     # Player
     player_size = (250,250)
+    player_default_direction = "right"
+    player_size = (40,55)
+    player_speed = 6
+    player_sprinting_speed = 10
+    player_default_lifes = 3
+    player_animation_delay = 100
+    player_jump_height = -10
+    player_jump_instant_move = 10
+    player_y_momentum = 0.5
+    player_max_y_momentum = 10
+    player_max_jumps = 2
