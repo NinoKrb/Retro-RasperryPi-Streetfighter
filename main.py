@@ -48,9 +48,9 @@ class Game():
                     else:
                         self.player.change_direction('right')
                         self.player.flip = True
+                    self.player.move_direction()
                     self.player.action_manager.force_change_action('run', True)
                     self.player.animation_set.change_current_animation(self.player.action_manager.current_action['name'])
-                    self.player.start_moving()
 
                 if event.key == pygame.K_SPACE:
                     self.player.jump()
@@ -59,9 +59,10 @@ class Game():
                 if event.key == pygame.K_d or event.key == pygame.K_a:
                     if event.key == pygame.K_d:
                         self.player.flip = False
+                        self.player.stop_move_direction('right')
                     else:
                         self.player.flip = True
-                    self.player.stop_moving()
+                        self.player.stop_move_direction('left')
                     self.player.action_manager.reset_action()
                     self.player.action_manager.clear_queue()
                     self.player.animation_set.change_current_animation(self.player.action_manager.current_action['name'])
