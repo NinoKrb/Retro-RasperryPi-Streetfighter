@@ -26,7 +26,6 @@ class Player(pygame.sprite.Sprite):
         self.speed = speed
         self.pos = { 'x': pos[0], 'y': pos[1] }
         self.direction = None
-        self.moving = False
         self.flip = False
 
         # Gravity
@@ -35,7 +34,6 @@ class Player(pygame.sprite.Sprite):
 
         self.moving = {'right': False, 'left': False}
         self.jumps_left = 2
-
 
         # Animation & Actions
         self.animation_set = self.load_animation_set(animations)
@@ -48,20 +46,7 @@ class Player(pygame.sprite.Sprite):
         for animation in animations:
             animation_objects.append(Animation(animation, os.path.join('players', 'player_1', 'animations', animation), 100),)
 
-        return AnimationSet('Player', animation_objects)
-
-    def move(self):
-        if self.moving:
-            if self.direction == 'right':
-                self.pos['x'] += self.speed
-            elif self.direction == 'left':
-                self.pos['x'] -= self.speed
-
-    def start_moving(self):
-        self.moving = True
-
-    def stop_moving(self):
-        self.moving = False    
+        return AnimationSet('Player', animation_objects) 
 
     def change_direction(self, direction):
         self.direction = direction
@@ -89,10 +74,9 @@ class Player(pygame.sprite.Sprite):
         self.process_animation()
         self.move_velocity()
         self.gravity()
-        self.move()
+        self.set_coords()
 
     def gravity(self):
-        # Gravity
         self.player_movement[1] += self.player_y_momentum
         self.player_y_momentum += Settings.player_y_momentum
 
@@ -100,40 +84,29 @@ class Player(pygame.sprite.Sprite):
         if self.player_y_momentum > Settings.player_max_y_momentum:
             self.player_y_momentum = Settings.player_max_y_momentum
 
-
-        #self.collisions = self.move(self.game.map.tiles)
-
-        #if self.collisions['bottom']:
-        #    self.player_y_momentum = 0
-
-        #    if self.is_jumping == True:
-        #        self.jumps_left = 2
-        #        self.is_jumping = False
-
-        #if self.collisions['top']:
-        #    self.player_y_momentum = 0
-
-
-    """
-    def gravity(self):
-        if self.is_jumping:
-            self.jump_velocity += 10
-            if self.jump_velocity < 600:
-                self.pos['y'] -= 10
-            else:
-                self.is_jumping = False
-
-        print(self.rect)
-        if not pygame.sprite.collide_rect(self, self.game.arena.floor):
-            self.pos['y'] += 5
-        else:
+        self.collisions = self.move([self.game.arena.floor])
+        if self.collisions['bottom']:
             self.jumps_left = 2
             self.is_jumping = False
             self.jump_velocity = 0
-            self.rect.bottom = self.game.arena.floor.rect.top
-            self.set_coords()
-            print(self.rect)
-    """
+            self.player_y_momentum = 0
+
+    def move(self, tiles):
+        collision_types = {'top': False, 'bottom': False, 'right': False, 'left': False}
+        self.rect.x += self.player_movement[0]
+        self.rect.y += self.player_movement[1]
+
+        hit_list = []
+        for tile in tiles:
+            if self.rect.colliderect(tile):
+                hit_list.append(tile)
+
+        for tile in hit_list:
+            if self.player_movement[1] > 0:
+                self.rect.bottom = tile.rect.top
+                collision_types['bottom'] = True
+
+        return collision_types
 
     def jump(self, force=False):
         if self.is_jumping == False or self.jumps_left > 0 or force == True:
@@ -147,19 +120,25 @@ class Player(pygame.sprite.Sprite):
 
         # Movement direction
         if self.moving['right']:
-            if self.sprinting['right'] and self.collisions['bottom']:
-                self.player_movement[0] += Settings.player_sprinting_speed
-            else:
-                self.player_movement[0] += Settings.player_speed
+            self.player_movement[0] += Settings.player_speed
             if self.is_jumping == False:
                 self.is_walking = True
         if self.moving['left']:
-            if self.sprinting['left'] and self.collisions['bottom']:
-                self.player_movement[0] -= Settings.player_sprinting_speed
-            else:
-                self.player_movement[0] -= Settings.player_speed
+            self.player_movement[0] -= Settings.player_speed
             if self.is_jumping == False:
                 self.is_walking = True
+
+    def move_direction(self):
+        if self.direction == "left":
+            self.moving['left'] = True
+        elif self.direction == "right":
+            self.moving['right'] = True
+
+    def stop_move_direction(self, direction):
+        if direction == "left":
+            self.moving['left'] = False
+        elif direction == "right":
+            self.moving['right'] = False
 
     def process_animation(self):
         frame = self.animation_set.play_animation()
