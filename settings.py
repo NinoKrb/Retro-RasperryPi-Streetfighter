@@ -25,7 +25,6 @@ class Settings():
     # Player
     player_size = (250,250)
     player_default_direction = "right"
-    player_size = (40,55)
     player_speed = 6
     player_sprinting_speed = 10
     player_default_lifes = 3
