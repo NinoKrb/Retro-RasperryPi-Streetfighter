@@ -80,7 +80,6 @@ class Player(pygame.sprite.Sprite):
         self.player_movement[1] += self.player_y_momentum
         self.player_y_momentum += Settings.player_y_momentum
 
-        # Limit falling speed
         if self.player_y_momentum > Settings.player_max_y_momentum:
             self.player_y_momentum = Settings.player_max_y_momentum
 
@@ -113,16 +112,14 @@ class Player(pygame.sprite.Sprite):
     def jump(self, force=False):
         if self.is_jumping == False or self.jumps_left > 0 or force == True:
             self.is_jumping = True
-            self.player_y_momentum = Settings.player_jump_height # Jump height
+            self.player_y_momentum = Settings.player_jump_height
             self.jumps_left -= 1
             self.action_manager.force_change_action('jump', False)
             self.animation_set.change_current_animation(self.action_manager.current_action['name'])
 
     def move_velocity(self):
-        # Reset movement velocity
         self.player_movement = [0, 0]
 
-        # Movement direction
         if self.moving['right']:
             self.player_movement[0] += Settings.player_speed
             if self.is_jumping == False:
@@ -161,3 +158,23 @@ class Player(pygame.sprite.Sprite):
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
+
+    def handle_movement(self, payload):
+        self.change_direction(payload['direction'])
+        self.flip = payload['flip']
+
+        self.move_direction()
+        self.action_manager.force_change_action(payload['animation'], payload['loop'])
+        self.animation_set.change_current_animation(self.action_manager.current_action['name'])
+
+    def stop_handle_movement(self, payload):
+        self.stop_move_direction(payload['direction'])
+
+        if not self.is_jumping:
+            self.action_manager.reset_action()
+            self.action_manager.clear_queue()
+        self.animation_set.change_current_animation(self.action_manager.current_action['name'])
+
+    def handle_attack(self, payload):
+        self.action_manager.force_change_action(payload['animation'], payload['loop'])
+        self.animation_set.change_current_animation(self.action_manager.current_action['name'])
