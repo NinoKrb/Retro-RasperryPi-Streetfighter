@@ -44,7 +44,7 @@ class Player(pygame.sprite.Sprite):
     def load_animation_set(self, animations):
         animation_objects = []
         for animation in animations:
-            animation_objects.append(Animation(animation, os.path.join('players', 'player_1', 'animations', animation), 100),)
+            animation_objects.append(Animation(animation['name'], os.path.join('players', 'player_1', 'animations', animation['name']), animation['duration']),)
 
         return AnimationSet('Player', animation_objects) 
 
@@ -87,6 +87,8 @@ class Player(pygame.sprite.Sprite):
         self.collisions = self.move([self.game.arena.floor])
         if self.collisions['bottom']:
             self.jumps_left = 2
+            if self.is_jumping:
+                self.action_manager.queue_action('run', True)
             self.is_jumping = False
             self.jump_velocity = 0
             self.player_y_momentum = 0
@@ -113,6 +115,8 @@ class Player(pygame.sprite.Sprite):
             self.is_jumping = True
             self.player_y_momentum = Settings.player_jump_height # Jump height
             self.jumps_left -= 1
+            self.action_manager.force_change_action('jump', False)
+            self.animation_set.change_current_animation(self.action_manager.current_action['name'])
 
     def move_velocity(self):
         # Reset movement velocity
