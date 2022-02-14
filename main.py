@@ -1,8 +1,7 @@
 import pygame, os
 from settings import Settings
-from classes.background import Background
 from classes.player import Player
-from classes.floor import Floor
+from classes.keyhandler import KeyHandler, KeyBind
 from classes.arena import Arena
 
 class Game():
@@ -17,7 +16,18 @@ class Game():
         self.fps = pygame.time.Clock()
 
         self.arena = Arena(Settings.background_image, (0,Settings.window_height - 50), [Settings.window_width,100])
-        self.player = Player(1, Settings.player_size, (Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), 'fallback.png', [{ 'name': 'idle', 'duration': 100 }, { 'name': 'run', 'duration': 100 }, { 'name': 'jump', 'duration': 75 }], 10, (144, 200, 232))
+        self.player = Player(1, Settings.player_size, (Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), 'fallback.png', [{ 'name': 'idle', 'duration': 100 }, { 'name': 'run', 'duration': 100 }, { 'name': 'jump', 'duration': 75 }, { 'name': 'punsh', 'duration': 150 }, { 'name': 'kick', 'duration': 150 }], 10, (144, 200, 232))
+        
+        keybinds = [
+            KeyBind(pygame.KEYDOWN, pygame.K_d, 'movement', 'self.player.handle_movement', { 'direction': 'right', 'flip': False, 'animation': 'run' , 'loop': True }),
+            KeyBind(pygame.KEYDOWN, pygame.K_a, 'movement', 'self.player.handle_movement', { 'direction': 'left', 'flip': True, 'animation': 'run' , 'loop': True }),
+            KeyBind(pygame.KEYDOWN, pygame.K_SPACE, 'movement', 'self.player.jump'),
+            KeyBind(pygame.KEYUP, pygame.K_d, 'movement', 'self.player.stop_handle_movement', { 'direction': 'right' }),
+            KeyBind(pygame.KEYUP, pygame.K_a, 'movement', 'self.player.stop_handle_movement', { 'direction': 'left' }),
+            KeyBind(pygame.KEYDOWN, pygame.K_1, 'movement', 'self.player.handle_attack', { 'type': 'punsh', 'animation': 'punsh' , 'loop': False }),
+            KeyBind(pygame.KEYDOWN, pygame.K_2, 'movement', 'self.player.handle_attack', { 'type': 'kick', 'animation': 'kick' , 'loop': False }),
+        ]
+        self.keyhandler = KeyHandler(self.player, keybinds)
         self.running = True
 
     def run(self):
@@ -40,33 +50,13 @@ class Game():
             if event.type == pygame.QUIT:
                 self.running = False
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_d or event.key == pygame.K_a:
-                    if event.key == pygame.K_a:
-                        self.player.change_direction('left')
-                        self.player.flip = True
-                    else:
-                        self.player.change_direction('right')
-                        self.player.flip = False
-                    self.player.move_direction()
-                    self.player.action_manager.force_change_action('run', True)
-                    self.player.animation_set.change_current_animation(self.player.action_manager.current_action['name'])
-
-                if event.key == pygame.K_SPACE:
-                    self.player.jump()
-
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_d or event.key == pygame.K_a:
-                    if event.key == pygame.K_d:
-                        self.player.stop_move_direction('right')
-                    else:
-                        self.player.stop_move_direction('left')
-
-                    if not self.player.is_jumping:
-                        self.player.action_manager.reset_action()
-                        self.player.action_manager.clear_queue()
-                    self.player.animation_set.change_current_animation(self.player.action_manager.current_action['name'])
-
+            for keybind in self.keyhandler.keybinds:
+                if event.type == keybind.event:
+                    if event.key == keybind.key:
+                        if keybind.payload == None:
+                            eval(keybind.action + '()')
+                        else:
+                            eval(f"{keybind.action}({keybind.payload})")
 
 if __name__ == '__main__':
     game = Game()
