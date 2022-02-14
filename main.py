@@ -17,7 +17,7 @@ class Game():
         self.fps = pygame.time.Clock()
 
         self.arena = Arena(Settings.background_image, (0,Settings.window_height - 50), [Settings.window_width,100])
-        self.player = Player(1, Settings.player_size, (Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), 'fallback.png', ['idle', 'run'], 10, (144, 200, 232))
+        self.player = Player(1, Settings.player_size, (Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), 'fallback.png', [{ 'name': 'idle', 'duration': 100 }, { 'name': 'run', 'duration': 100 }, { 'name': 'jump', 'duration': 75 }], 10, (144, 200, 232))
         self.running = True
 
     def run(self):
@@ -44,10 +44,10 @@ class Game():
                 if event.key == pygame.K_d or event.key == pygame.K_a:
                     if event.key == pygame.K_a:
                         self.player.change_direction('left')
-                        self.player.flip = False
+                        self.player.flip = True
                     else:
                         self.player.change_direction('right')
-                        self.player.flip = True
+                        self.player.flip = False
                     self.player.move_direction()
                     self.player.action_manager.force_change_action('run', True)
                     self.player.animation_set.change_current_animation(self.player.action_manager.current_action['name'])
@@ -58,13 +58,13 @@ class Game():
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_d or event.key == pygame.K_a:
                     if event.key == pygame.K_d:
-                        self.player.flip = False
                         self.player.stop_move_direction('right')
                     else:
-                        self.player.flip = True
                         self.player.stop_move_direction('left')
-                    self.player.action_manager.reset_action()
-                    self.player.action_manager.clear_queue()
+
+                    if not self.player.is_jumping:
+                        self.player.action_manager.reset_action()
+                        self.player.action_manager.clear_queue()
                     self.player.animation_set.change_current_animation(self.player.action_manager.current_action['name'])
 
 
