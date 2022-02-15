@@ -16,7 +16,7 @@ class Game():
         self.fps = pygame.time.Clock()
 
         self.arena = Arena(Settings.background_image, (0,Settings.window_height - 50), [Settings.window_width,100])
-        self.player = Player(1, Settings.player_size, (Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), 'fallback.png', [{ 'name': 'idle', 'duration': 100 }, { 'name': 'run', 'duration': 100 }, { 'name': 'jump', 'duration': 75 }, { 'name': 'punsh', 'duration': 150 }, { 'name': 'kick', 'duration': 150 }], 10, (144, 200, 232))
+        self.player = Player(1, Settings.player_size, (Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), 'fallback.png', [{ 'name': 'idle', 'duration': 100 }, { 'name': 'run', 'duration': 100 }, { 'name': 'jump', 'duration': 75 }, { 'name': 'punsh', 'duration': 150 }, { 'name': 'kick', 'duration': 150 }, { 'name': 'dash', 'duration': 75 }], 10, (144, 200, 232))
         
         keybinds = [
             KeyBind(pygame.KEYDOWN, pygame.K_d, 'movement', 'self.player.handle_movement', { 'direction': 'right', 'flip': False, 'animation': 'run' , 'loop': True }),
@@ -26,6 +26,7 @@ class Game():
             KeyBind(pygame.KEYUP, pygame.K_a, 'movement', 'self.player.stop_handle_movement', { 'direction': 'left' }),
             KeyBind(pygame.KEYDOWN, pygame.K_1, 'movement', 'self.player.handle_attack', { 'type': 'punsh', 'animation': 'punsh' , 'loop': False }),
             KeyBind(pygame.KEYDOWN, pygame.K_2, 'movement', 'self.player.handle_attack', { 'type': 'kick', 'animation': 'kick' , 'loop': False }),
+            KeyBind(pygame.KEYDOWN, pygame.K_3, 'movement', 'self.player.handle_attack', { 'type': 'dash', 'animation': 'dash' , 'loop': False }),
         ]
         self.keyhandler = KeyHandler(self.player, keybinds)
         self.running = True
