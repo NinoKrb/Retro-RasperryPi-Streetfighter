@@ -11,14 +11,15 @@ from classes.animation import Animation
 from classes.action import Action
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, id, size, pos, fallback_image, animations, speed, colorkey):
+    def __init__(self, id, health, size, pos, player_images, animations, attacks, speed, colorkey):
         super().__init__()
 
         # Essential
         self.id = id
 
         # Sprite
-        self.fallback_image = fallback_image
+        self.fallback_image = player_images['fallback']
+        self.avatar_image = player_images['avatar']
         self.size = size
         self.colorkey = colorkey
 
@@ -27,6 +28,7 @@ class Player(pygame.sprite.Sprite):
         self.pos = { 'x': pos[0], 'y': pos[1] }
         self.direction = None
         self.flip = False
+        self.freeze = False
 
         # Gravity
         self.is_jumping = False
@@ -34,6 +36,12 @@ class Player(pygame.sprite.Sprite):
 
         self.moving = {'right': False, 'left': False}
         self.jumps_left = 2
+
+        # Fight
+        self.health = health
+        self.attacks = attacks
+        self.current_attack = None
+        self.is_attacking = False
 
         # Animation & Actions
         self.animation_set = self.load_animation_set(animations)
@@ -72,9 +80,11 @@ class Player(pygame.sprite.Sprite):
     def update(self, game):
         self.game = game
         self.process_animation()
-        self.move_velocity()
-        self.gravity()
+        if not self.freeze:
+            self.move_velocity()
+            self.gravity()
         self.set_coords()
+        self.check_fight_collision()
 
     def gravity(self):
         self.player_movement[1] += self.player_y_momentum
@@ -148,6 +158,10 @@ class Player(pygame.sprite.Sprite):
             self.update_sprite(frame)
             if self.animation_set.current_animation['current_frame'] == 0:
                 next_action = self.action_manager.is_next_action_queued()
+                if self.is_attacking:
+                    self.is_attacking = False
+                    self.freeze = False
+
                 if next_action:
                     self.action_manager.change_action(next_action)
                     self.animation_set.change_current_animation(next_action['name'])
@@ -173,8 +187,38 @@ class Player(pygame.sprite.Sprite):
         if not self.is_jumping:
             self.action_manager.reset_action()
             self.action_manager.clear_queue()
+
+        if self.is_attacking:
+            self.is_attacking = False
+            self.freeze = False
         self.animation_set.change_current_animation(self.action_manager.current_action['name'])
 
     def handle_attack(self, payload):
+        self.is_attacking = True
+        self.current_attack = self.find_attack(payload['animation'])
         self.action_manager.force_change_action(payload['animation'], payload['loop'])
         self.animation_set.change_current_animation(self.action_manager.current_action['name'])
+
+    def find_attack(self, action_name):
+        for attack in self.attacks:
+            if attack.action_name == action_name:
+                return attack
+
+    def check_fight_collision(self):
+        hits = pygame.sprite.spritecollide(self, self.game.players, False, pygame.sprite.collide_circle_ratio(0.35))
+        for hit in hits:
+            if hit != self and hit.is_attacking:
+                self.handle_hit(hit, hit.current_attack)
+
+    def handle_hit(self, attacker, attack):
+        self.freeze = True
+        self.health -= attack.damage
+        print(self.health)
+        if attack.knockback:
+            if attacker.rect.center < self.rect.center:
+                self.rect.move_ip(attack.knockback * 2, -attack.knockback * 4)
+                print("BOUNCE TO RIGHT")
+            else:
+                self.rect.move_ip(-attack.knockback * 2, -attack.knockback * 4)
+                print("BOUNCE TO LEFT")
+        self.freeze = False
