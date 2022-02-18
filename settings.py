@@ -34,3 +34,6 @@ class Settings():
     player_y_momentum = 0.5
     player_max_y_momentum = 10
     player_max_jumps = 2
+
+    # Overlay
+    avatar_size = (50,50)
