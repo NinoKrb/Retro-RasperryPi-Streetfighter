@@ -35,8 +35,8 @@ class Game():
         player_images = { 'fallback': 'fallback.png', 'avatar': 'avatar.png' }
 
         self.arena = Arena(Settings.background_image, (0,Settings.window_height - 50), [Settings.window_width,100])
-        self.player_1 = Player(1, 100, Settings.player_size, (Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), player_images, actions, attacks, 10, (144, 200, 232))
-        self.player_2 = Player(2, 100, Settings.player_size, (Settings.window_width // 2 - 150, Settings.window_height - 50 - Settings.player_size[1]), player_images, actions, attacks, 10, (144, 200, 232))
+        self.player_1 = Player(1, Settings.player_health, Settings.player_size, (Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), player_images, actions, attacks, 10, (144, 200, 232))
+        self.player_2 = Player(2, Settings.player_health, Settings.player_size, (Settings.window_width // 2 - 150, Settings.window_height - 50 - Settings.player_size[1]), player_images, actions, attacks, 10, (144, 200, 232))
         
         self.players = pygame.sprite.Group(self.player_1, self.player_2)
 
@@ -64,6 +64,7 @@ class Game():
 
     def update(self):
         self.players.update(self)
+        self.overlay.update_healthbars(self.player_1, self.player_2)
 
     def draw(self):
         self.arena.draw(self.screen)
