@@ -39,6 +39,7 @@ class Player(pygame.sprite.Sprite):
 
         # Fight
         self.health = health
+        self.max_health = health
         self.attacks = attacks
         self.current_attack = None
         self.is_attacking = False
