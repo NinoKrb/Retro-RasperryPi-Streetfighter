@@ -10,6 +10,8 @@ class Overlay():
         self.elements.append(Avatar('player_1', self.player_1.avatar_image, Settings.avatar_size, (50,50)))
         self.elements.append(Avatar('player_2', self.player_2.avatar_image, Settings.avatar_size, (Settings.window_width - 50 - Settings.avatar_size[0],50), True))
 
+        self.elements.append(Text(None, 24, 'GAME', pygame.Color.BLUE))
+
         self.healthbar_player_1 = Healthbar(self.player_1, self.player_1.health, self.player_1.max_health, (50 + Settings.avatar_size[0], 50))
         self.healthbar_player_2 = Healthbar(self.player_2, self.player_2.health, self.player_2.max_health, (Settings.window_width - 50 - Settings.avatar_size[0], 50), 'right')
 
@@ -93,3 +95,12 @@ class Healthbar(pygame.sprite.Sprite):
             rect.left = x
         else:
             rect.right = x
+
+class Text(pygame.sprite.Sprite):
+    def __init__(self, font, size, text, color, pos):
+        self.font = pygame.font.SysFont(None, size)
+        self.image = font.render(text, True, color)
+        self.rect = self.image.get_rect()
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
