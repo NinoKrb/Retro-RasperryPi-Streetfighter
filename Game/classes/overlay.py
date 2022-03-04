@@ -55,8 +55,6 @@ class Avatar(OverlayElement):
 
     def update_sprite(self, player_name, filename):
         joined_path = os.path.join('players', player_name, filename)
-        print(joined_path)
-        print(os.path.join(Settings.path_image, joined_path))
         super().update_sprite(joined_path)
 
 class Healthbar(pygame.sprite.Sprite):
@@ -69,18 +67,21 @@ class Healthbar(pygame.sprite.Sprite):
         self.build_surface(self.health, self.max, self.pos, self.direction)
 
     def build_surface(self, health, max, pos, direction):
-        health_surface = pygame.Surface((health, Settings.healthbar_height))
+        health_surface = pygame.Surface((health // Settings.healthbar_width_factor, Settings.healthbar_height))
         health_surface.fill(Settings.healthbar_health_color)
         self.health_surface = { "surface": health_surface, "rect": health_surface.get_rect() }
         self.set_pos(self.health_surface['rect'], *pos, direction)
         
-        max_surface = pygame.Surface((max, Settings.healthbar_height))
+        max_surface = pygame.Surface((max // Settings.healthbar_width_factor, Settings.healthbar_height))
         max_surface.fill(Settings.healthbar_blank_color)
         self.max_surface = { "surface": max_surface, "rect": max_surface.get_rect() }
         self.set_pos(self.max_surface['rect'], *pos, direction)
 
     def update_bar(self, health):
-        self.health_surface['rect'].width = health
+        try:
+            self.health_surface['surface'] = pygame.transform.scale(self.health_surface['surface'], (health // Settings.healthbar_width_factor, self.health_surface['rect'].height))
+        except:
+            print("HEALTH IN MINUS")
 
     def draw(self, screen):
         screen.blit(self.max_surface['surface'], self.max_surface['rect'])

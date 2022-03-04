@@ -40,17 +40,31 @@ class Game():
         
         self.players = pygame.sprite.Group(self.player_1, self.player_2)
 
-        keybinds = [
+        self.keyhandlers = []
+
+        keybinds_1 = [
             KeyBind(pygame.KEYDOWN, pygame.K_d, 'movement', 'self.player_1.handle_movement', { 'direction': 'right', 'flip': False, 'animation': 'run' , 'loop': True }),
             KeyBind(pygame.KEYDOWN, pygame.K_a, 'movement', 'self.player_1.handle_movement', { 'direction': 'left', 'flip': True, 'animation': 'run' , 'loop': True }),
-            KeyBind(pygame.KEYDOWN, pygame.K_SPACE, 'movement', 'self.player_1.jump'),
+            KeyBind(pygame.KEYDOWN, pygame.K_w, 'movement', 'self.player_1.jump'),
             KeyBind(pygame.KEYUP, pygame.K_d, 'movement', 'self.player_1.stop_handle_movement', { 'direction': 'right' }),
             KeyBind(pygame.KEYUP, pygame.K_a, 'movement', 'self.player_1.stop_handle_movement', { 'direction': 'left' }),
             KeyBind(pygame.KEYDOWN, pygame.K_1, 'attack', 'self.player_1.handle_attack', { 'type': 'punsh', 'animation': 'punsh' , 'loop': False }),
             KeyBind(pygame.KEYDOWN, pygame.K_2, 'attack', 'self.player_1.handle_attack', { 'type': 'kick', 'animation': 'kick' , 'loop': False }),
             KeyBind(pygame.KEYDOWN, pygame.K_3, 'attack', 'self.player_1.handle_attack', { 'type': 'dash', 'animation': 'dash' , 'loop': False }),
         ]
-        self.keyhandler = KeyHandler(self.player_1, keybinds)
+        self.keyhandlers.append(KeyHandler(self.player_1, keybinds_1))
+
+        keybinds_2 = [
+            KeyBind(pygame.KEYDOWN, pygame.K_RIGHT, 'movement', 'self.player_2.handle_movement', { 'direction': 'right', 'flip': False, 'animation': 'run' , 'loop': True }),
+            KeyBind(pygame.KEYDOWN, pygame.K_LEFT, 'movement', 'self.player_2.handle_movement', { 'direction': 'left', 'flip': True, 'animation': 'run' , 'loop': True }),
+            KeyBind(pygame.KEYDOWN, pygame.K_UP, 'movement', 'self.player_2.jump'),
+            KeyBind(pygame.KEYUP, pygame.K_RIGHT, 'movement', 'self.player_2.stop_handle_movement', { 'direction': 'right' }),
+            KeyBind(pygame.KEYUP, pygame.K_LEFT, 'movement', 'self.player_2.stop_handle_movement', { 'direction': 'left' }),
+            KeyBind(pygame.KEYDOWN, pygame.K_8, 'attack', 'self.player_2.handle_attack', { 'type': 'punsh', 'animation': 'punsh' , 'loop': False }),
+            KeyBind(pygame.KEYDOWN, pygame.K_9, 'attack', 'self.player_2.handle_attack', { 'type': 'kick', 'animation': 'kick' , 'loop': False }),
+            KeyBind(pygame.KEYDOWN, pygame.K_0, 'attack', 'self.player_2.handle_attack', { 'type': 'dash', 'animation': 'dash' , 'loop': False }),
+        ]
+        self.keyhandlers.append(KeyHandler(self.player_2, keybinds_2))
 
         self.overlay = Overlay(self.player_1, self.player_2)
         self.running = True
@@ -77,13 +91,14 @@ class Game():
             if event.type == pygame.QUIT:
                 self.running = False
 
-            for keybind in self.keyhandler.keybinds:
-                if event.type == keybind.event:
-                    if event.key == keybind.key:
-                        if keybind.payload == None:
-                            eval(keybind.action + '()')
-                        else:
-                            eval(f"{keybind.action}({keybind.payload})")
+            for keyhandler in self.keyhandlers:
+                for keybind in keyhandler.keybinds:
+                    if event.type == keybind.event:
+                        if event.key == keybind.key:
+                            if keybind.payload == None:
+                                eval(keybind.action + '()')
+                            else:
+                                eval(f"{keybind.action}({keybind.payload})")
 
 if __name__ == '__main__':
     game = Game()

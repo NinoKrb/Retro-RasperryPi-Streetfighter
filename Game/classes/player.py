@@ -214,12 +214,9 @@ class Player(pygame.sprite.Sprite):
     def handle_hit(self, attacker, attack):
         self.freeze = True
         self.health -= attack.damage
-        print(self.health)
         if attack.knockback:
             if attacker.rect.center < self.rect.center:
                 self.rect.move_ip(attack.knockback * 2, -attack.knockback * 4)
-                print("BOUNCE TO RIGHT")
             else:
                 self.rect.move_ip(-attack.knockback * 2, -attack.knockback * 4)
-                print("BOUNCE TO LEFT")
         self.freeze = False

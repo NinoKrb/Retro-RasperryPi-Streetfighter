@@ -34,10 +34,11 @@ class Settings():
     player_y_momentum = 0.5
     player_max_y_momentum = 10
     player_max_jumps = 2
-    player_health = 250
+    player_health = 5000
 
     # Overlay
     avatar_size = (50,50)
     healthbar_height = 25
     healthbar_health_color = (201, 54, 54)
     healthbar_blank_color = (199, 199, 199)
+    healthbar_width_factor = 20
