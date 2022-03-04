@@ -42,6 +42,8 @@ class Game():
 
         self.keyhandlers = []
 
+        # Player 1 Keybinds
+
         keybinds_1 = [
             KeyBind(pygame.KEYDOWN, pygame.K_d, 'movement', 'self.player_1.handle_movement', { 'direction': 'right', 'flip': False, 'animation': 'run' , 'loop': True }),
             KeyBind(pygame.KEYDOWN, pygame.K_a, 'movement', 'self.player_1.handle_movement', { 'direction': 'left', 'flip': True, 'animation': 'run' , 'loop': True }),
@@ -53,6 +55,8 @@ class Game():
             KeyBind(pygame.KEYDOWN, pygame.K_3, 'attack', 'self.player_1.handle_attack', { 'type': 'dash', 'animation': 'dash' , 'loop': False }),
         ]
         self.keyhandlers.append(KeyHandler(self.player_1, keybinds_1))
+
+        # Player 2 Keybinds
 
         keybinds_2 = [
             KeyBind(pygame.KEYDOWN, pygame.K_RIGHT, 'movement', 'self.player_2.handle_movement', { 'direction': 'right', 'flip': False, 'animation': 'run' , 'loop': True }),
