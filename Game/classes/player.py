@@ -11,7 +11,7 @@ from classes.animation import Animation
 from classes.action import Action
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, id, health, size, pos, player_images, animations, attacks, speed, colorkey):
+    def __init__(self, id, health, size, pos, flip, player_images, animations, attacks, speed, colorkey):
         super().__init__()
 
         # Essential
@@ -27,7 +27,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = speed
         self.pos = { 'x': pos[0], 'y': pos[1] }
         self.direction = None
-        self.flip = False
+        self.flip = flip
         self.freeze = False
 
         # Gravity

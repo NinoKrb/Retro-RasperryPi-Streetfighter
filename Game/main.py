@@ -12,6 +12,7 @@ class Game():
 
         os.environ['SDL_VIDEO_WINDOW_POS'] = '1'
         pygame.init()
+        pygame.font.init()
         pygame.display.set_caption(Settings.title)
 
         self.screen = pygame.display.set_mode((Settings.window_width, Settings.window_height))
@@ -35,8 +36,8 @@ class Game():
         player_images = { 'fallback': 'fallback.png', 'avatar': 'avatar.png' }
 
         self.arena = Arena(Settings.background_image, (0,Settings.window_height - 50), [Settings.window_width,100])
-        self.player_1 = Player(1, Settings.player_health, Settings.player_size, (Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), player_images, actions, attacks, 10, (144, 200, 232))
-        self.player_2 = Player(2, Settings.player_health, Settings.player_size, (Settings.window_width // 2 - 150, Settings.window_height - 50 - Settings.player_size[1]), player_images, actions, attacks, 10, (144, 200, 232))
+        self.player_1 = Player(1, Settings.player_health, Settings.player_size, (Settings.window_width // 4 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), False, player_images, actions, attacks, 10, (144, 200, 232))
+        self.player_2 = Player(2, Settings.player_health, Settings.player_size, (Settings.window_width // 4 + Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), True, player_images, actions, attacks, 10, (144, 200, 232))
         
         self.players = pygame.sprite.Group(self.player_1, self.player_2)
 
