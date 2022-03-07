@@ -10,7 +10,8 @@ class Settings():
 
     # Folder paths
     path_image = os.path.join(asset_file, "images")
-    path_storage = os.path.join(base_file, "storage")
+    path_font = os.path.join(asset_file, "fonts")
+    path_storage = os.path.join(asset_file, "storage")
 
     # Specific paths
     path_background = os.path.join(path_image, "backgrounds")
