@@ -72,6 +72,7 @@ class Game():
         self.keyhandlers.append(KeyHandler(self.player_2, keybinds_2))
 
         self.overlay = Overlay(self.player_1, self.player_2)
+        self.overlay.header_text.update('Fight', (255,255,255), 50, Settings.window_width // 2)
         self.running = True
 
     def run(self):
