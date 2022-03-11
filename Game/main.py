@@ -18,12 +18,21 @@ class Game():
         self.screen = pygame.display.set_mode((Settings.window_width, Settings.window_height))
         self.fps = pygame.time.Clock()
 
-        actions = [
+        actions_1 = [
             { 'name': 'idle', 'duration': 100 }, 
             { 'name': 'run', 'duration': 100 }, 
             { 'name': 'jump', 'duration': 75 }, 
-            { 'name': 'punsh', 'duration': 150 }, 
+            { 'name': 'punsh', 'duration': 100 }, 
             { 'name': 'kick', 'duration': 150 }, 
+            { 'name': 'dash', 'duration': 75 }
+        ]
+
+        actions_2 = [
+            { 'name': 'idle', 'duration': 100 }, 
+            { 'name': 'run', 'duration': 100 }, 
+            { 'name': 'jump', 'duration': 75 }, 
+            { 'name': 'punsh', 'duration': 100 }, 
+            { 'name': 'kick', 'duration': 100 }, 
             { 'name': 'dash', 'duration': 75 }
         ]
 
@@ -36,8 +45,8 @@ class Game():
         player_images = { 'fallback': 'fallback.png', 'avatar': 'avatar.png' }
 
         self.arena = Arena(Settings.background_image, (0,Settings.window_height - 50), [Settings.window_width,100])
-        self.player_1 = Player(1, Settings.player_health, Settings.player_size, (Settings.window_width // 4 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), False, player_images, actions, attacks, 10, (144, 200, 232))
-        self.player_2 = Player(2, Settings.player_health, Settings.player_size, (Settings.window_width // 4 + Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), True, player_images, actions, attacks, 10, (144, 200, 232))
+        self.player_1 = Player(1, Settings.player_health, Settings.player_size, (Settings.window_width // 4 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), False, player_images, actions_1, attacks, 10, (144, 200, 232))
+        self.player_2 = Player(2, Settings.player_health, Settings.player_size, (Settings.window_width // 4 + Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), True, player_images, actions_2, attacks, 10, (112, 136, 136))
         
         self.players = pygame.sprite.Group(self.player_1, self.player_2)
 
@@ -48,7 +57,6 @@ class Game():
         keybinds_1 = [
             KeyBind(pygame.KEYDOWN, pygame.K_d, 'movement', 'self.player_1.handle_movement', { 'direction': 'right', 'flip': False, 'animation': 'run' , 'loop': True }),
             KeyBind(pygame.KEYDOWN, pygame.K_a, 'movement', 'self.player_1.handle_movement', { 'direction': 'left', 'flip': True, 'animation': 'run' , 'loop': True }),
-            KeyBind(pygame.KEYDOWN, pygame.K_w, 'movement', 'self.player_1.jump'),
             KeyBind(pygame.KEYUP, pygame.K_d, 'movement', 'self.player_1.stop_handle_movement', { 'direction': 'right' }),
             KeyBind(pygame.KEYUP, pygame.K_a, 'movement', 'self.player_1.stop_handle_movement', { 'direction': 'left' }),
             KeyBind(pygame.KEYDOWN, pygame.K_1, 'attack', 'self.player_1.handle_attack', { 'type': 'punsh', 'animation': 'punsh' , 'loop': False }),
@@ -62,7 +70,6 @@ class Game():
         keybinds_2 = [
             KeyBind(pygame.KEYDOWN, pygame.K_RIGHT, 'movement', 'self.player_2.handle_movement', { 'direction': 'right', 'flip': False, 'animation': 'run' , 'loop': True }),
             KeyBind(pygame.KEYDOWN, pygame.K_LEFT, 'movement', 'self.player_2.handle_movement', { 'direction': 'left', 'flip': True, 'animation': 'run' , 'loop': True }),
-            KeyBind(pygame.KEYDOWN, pygame.K_UP, 'movement', 'self.player_2.jump'),
             KeyBind(pygame.KEYUP, pygame.K_RIGHT, 'movement', 'self.player_2.stop_handle_movement', { 'direction': 'right' }),
             KeyBind(pygame.KEYUP, pygame.K_LEFT, 'movement', 'self.player_2.stop_handle_movement', { 'direction': 'left' }),
             KeyBind(pygame.KEYDOWN, pygame.K_8, 'attack', 'self.player_2.handle_attack', { 'type': 'punsh', 'animation': 'punsh' , 'loop': False }),
