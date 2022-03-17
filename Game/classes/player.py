@@ -11,7 +11,7 @@ from classes.animation import Animation
 from classes.action import Action
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, id, health, size, pos, player_images, animations, attacks, speed, colorkey):
+    def __init__(self, id, health, size, pos, flip, player_images, animations, attacks, speed, colorkey):
         super().__init__()
 
         # Essential
@@ -27,7 +27,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = speed
         self.pos = { 'x': pos[0], 'y': pos[1] }
         self.direction = None
-        self.flip = False
+        self.flip = flip
         self.freeze = False
 
         # Gravity
@@ -48,12 +48,12 @@ class Player(pygame.sprite.Sprite):
         self.animation_set = self.load_animation_set(animations)
         self.action_manager = Action({ 'name': 'idle', 'loop': False })
         self.animation_set.change_current_animation(self.action_manager.current_action['name'])
-        self.update_sprite(os.path.join('players', 'player_1', self.fallback_image))
+        self.update_sprite(os.path.join('players', f'player_{self.id}', self.fallback_image))
 
     def load_animation_set(self, animations):
         animation_objects = []
         for animation in animations:
-            animation_objects.append(Animation(animation['name'], os.path.join('players', 'player_1', 'animations', animation['name']), animation['duration']),)
+            animation_objects.append(Animation(animation['name'], os.path.join('players', f'player_{self.id}', 'animations', animation['name']), animation['duration']),)
 
         return AnimationSet('Player', animation_objects) 
 
@@ -155,7 +155,7 @@ class Player(pygame.sprite.Sprite):
     def process_animation(self):
         frame = self.animation_set.play_animation()
         if frame:
-            frame = os.path.join('players', 'player_1', 'animations', self.animation_set.current_animation['name'], frame)
+            frame = os.path.join('players', f'player_{self.id}', 'animations', self.animation_set.current_animation['name'], frame)
             self.update_sprite(frame)
             if self.animation_set.current_animation['current_frame'] == 0:
                 next_action = self.action_manager.is_next_action_queued()
