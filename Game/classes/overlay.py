@@ -10,7 +10,7 @@ class Overlay():
 
         self.elements = []
         self.elements.append(Avatar('player_1', self.player_1.avatar_image, Settings.avatar_size, (50,50)))
-        self.elements.append(Avatar('player_2', self.player_2.avatar_image, Settings.avatar_size, (Settings.window_width - 50 - Settings.avatar_size[0],50), True))
+        self.elements.append(Avatar('player_2', self.player_2.avatar_image, Settings.avatar_size, (Settings.window_width - 50 - Settings.avatar_size[0],50)))
 
         self.elements.append(self.header_text)
 
