@@ -2,6 +2,7 @@ import pygame, os
 from settings import Settings
 from classes.player import Player
 from classes.keyhandler import KeyHandler, KeyBind
+from classes.controllerhandler import ControllerHandler, ControllerBind
 from classes.arena import Arena
 from classes.attack import Attack
 from classes.overlay import Overlay
@@ -45,12 +46,13 @@ class Game():
         player_images = { 'fallback': 'fallback.png', 'avatar': 'avatar.png' }
 
         self.arena = Arena(Settings.background_image, (0,Settings.window_height - 50), [Settings.window_width,100])
-        self.player_1 = Player(1, Settings.player_health, Settings.player_size, (Settings.window_width // 4 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), False, player_images, actions_1, attacks, 10, (144, 200, 232))
-        self.player_2 = Player(2, Settings.player_health, Settings.player_size, (Settings.window_width // 4 + Settings.window_width // 2 - Settings.player_size[0] // 2, Settings.window_height - 50 - Settings.player_size[1]), True, player_images, actions_2, attacks, 10, (112, 136, 136))
+        self.player_1 = Player(1, Settings.player_health, Settings.player_size_1, (Settings.window_width // 4 - Settings.player_size_1[0] // 2, Settings.window_height - 50 - Settings.player_size_1[1]), False, player_images, actions_1, attacks, 10, (144, 200, 232))
+        self.player_2 = Player(2, Settings.player_health, Settings.player_size_2, (Settings.window_width // 4 + Settings.window_width // 2 - Settings.player_size_2[0] // 2, Settings.window_height - 50 - Settings.player_size_2[1]), True, player_images, actions_2, attacks, 10, (112, 136, 136))
         
         self.players = pygame.sprite.Group(self.player_1, self.player_2)
 
         self.keyhandlers = []
+        self.controllerhandlers = []
 
         # Player 1 Keybinds
 
@@ -64,6 +66,20 @@ class Game():
             KeyBind(pygame.KEYDOWN, pygame.K_3, 'attack', 'self.player_1.handle_attack', { 'type': 'dash', 'animation': 'dash' , 'loop': False }),
         ]
         self.keyhandlers.append(KeyHandler(self.player_1, keybinds_1))
+
+        # Player 1 Controller Keybinds
+
+        controllerbinds_1 = [
+            ControllerBind(2, 'movement', 'self.player_1.handle_movement', { 'direction': 'right', 'flip': False, 'animation': 'run' , 'loop': True }),
+            ControllerBind(3, 'movement', 'self.player_1.handle_movement', { 'direction': 'left', 'flip': True, 'animation': 'run' , 'loop': True }),
+            
+            ControllerBind(2, 'movement', 'self.player_1.stop_handle_movement', { 'direction': 'right' }),
+            ControllerBind(3, 'movement', 'self.player_1.stop_handle_movement', { 'direction': 'left' }),
+            
+            ControllerBind(17, 'attack', 'self.player_1.handle_attack', { 'type': 'punsh', 'animation': 'punsh' , 'loop': False }),
+            ControllerBind(27, 'attack', 'self.player_1.handle_attack', { 'type': 'kick', 'animation': 'kick' , 'loop': False }),
+        ]
+        self.controllerhandlers.append(ControllerHandler(self.player_1, controllerbinds_1))
 
         # Player 2 Keybinds
 
@@ -112,6 +128,14 @@ class Game():
                                 eval(keybind.action + '()')
                             else:
                                 eval(f"{keybind.action}({keybind.payload})")
+
+            for controllerhandler in self.controllerhandlers:
+                for keybind in controllerhandler.keybinds:
+                    if keybind.button.is_pressed:
+                        if keybind.payload == None:
+                            eval(keybind.action + '()')
+                        else:
+                            eval(f"{keybind.action}({keybind.payload})")
 
 if __name__ == '__main__':
     game = Game()
