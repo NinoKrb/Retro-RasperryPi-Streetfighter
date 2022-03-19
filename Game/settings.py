@@ -24,7 +24,8 @@ class Settings():
     background_image = "background.png"
 
     # Player
-    player_size = (250,250)
+    player_size_1 = (250,250)
+    player_size_2 = (200,200)
     player_default_direction = "right"
     player_speed = 6
     player_sprinting_speed = 10
