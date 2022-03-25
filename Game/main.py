@@ -6,6 +6,7 @@ from classes.controllerhandler import ControllerHandler, ControllerBind
 from classes.arena import Arena
 from classes.attack import Attack
 from classes.overlay import Overlay
+from helpers.timer import Timer
 
 class Game():
     def __init__(self):
@@ -69,17 +70,17 @@ class Game():
 
         # Player 1 Controller Keybinds
 
+	#ControllerBind(2, 'movement', 'self.player_1.stop_handle_movement', { 'direction': 'right' }),
+        #ControllerBind(3, 'movement', 'self.player_1.stop_handle_movement', { 'direction': 'left' }),
+
         controllerbinds_1 = [
-            ControllerBind(2, 'movement', 'self.player_1.handle_movement', { 'direction': 'right', 'flip': False, 'animation': 'run' , 'loop': True }),
-            ControllerBind(3, 'movement', 'self.player_1.handle_movement', { 'direction': 'left', 'flip': True, 'animation': 'run' , 'loop': True }),
+            ControllerBind(2, 'movement', 'self.player_2.handle_movement', { 'direction': 'left', 'flip': True, 'animation': 'run' , 'loop': True, 'stop_function': {'function': 'self.player_2.stop_handle_movement', 'payload': { 'direction': 'left' }} }),
+            ControllerBind(3, 'movement', 'self.player_2.handle_movement', { 'direction': 'right', 'flip': False, 'animation': 'run' , 'loop': True, 'stop_function': {'function': 'self.player_2.stop_handle_movement', 'payload': { 'direction': 'right' } }}),
             
-            ControllerBind(2, 'movement', 'self.player_1.stop_handle_movement', { 'direction': 'right' }),
-            ControllerBind(3, 'movement', 'self.player_1.stop_handle_movement', { 'direction': 'left' }),
-            
-            ControllerBind(17, 'attack', 'self.player_1.handle_attack', { 'type': 'punsh', 'animation': 'punsh' , 'loop': False }),
-            ControllerBind(27, 'attack', 'self.player_1.handle_attack', { 'type': 'kick', 'animation': 'kick' , 'loop': False }),
+            ControllerBind(4, 'attack', 'self.player_2.handle_attack', { 'type': 'punsh', 'animation': 'punsh' , 'loop': False, 'stop_function': None }),
+            ControllerBind(14, 'attack', 'self.player_2.handle_attack', { 'type': 'kick', 'animation': 'kick' , 'loop': False, 'stop_function': None }),
         ]
-        self.controllerhandlers.append(ControllerHandler(self.player_1, controllerbinds_1))
+        self.controllerhandlers.append(ControllerHandler(self.player_2, controllerbinds_1))
 
         # Player 2 Keybinds
 
@@ -93,6 +94,8 @@ class Game():
             KeyBind(pygame.KEYDOWN, pygame.K_0, 'attack', 'self.player_2.handle_attack', { 'type': 'dash', 'animation': 'dash' , 'loop': False }),
         ]
         self.keyhandlers.append(KeyHandler(self.player_2, keybinds_2))
+        
+        self.movement_timer = Timer(500)
 
         self.overlay = Overlay(self.player_1, self.player_2)
         self.overlay.header_text.update('Fight', (255,255,255), 50, Settings.window_width // 2)
@@ -129,13 +132,26 @@ class Game():
                             else:
                                 eval(f"{keybind.action}({keybind.payload})")
 
-            for controllerhandler in self.controllerhandlers:
-                for keybind in controllerhandler.keybinds:
-                    if keybind.button.is_pressed:
-                        if keybind.payload == None:
-                            eval(keybind.action + '()')
-                        else:
-                            eval(f"{keybind.action}({keybind.payload})")
+        for controllerhandler in self.controllerhandlers:
+            print(controllerhandler)
+            for keybind in controllerhandler.keybinds:
+                print(keybind, 'REGISTERED KEYBIND')
+                if keybind.button.is_pressed:
+                    print(keybind.pin, 'Is Pressed')
+                    if keybind.payload == None:
+                        eval(keybind.action + '()')
+                    else:
+                        eval(f"{keybind.action}({keybind.payload})")
+                else:
+                    try:
+                        if keybind.payload['stop_function']['function'] != None:
+                            if keybind.payload['stop_function']['payload'] != None:
+                                eval(f"{keybind.payload['stop_function']['function']}({keybind.payload['stop_function']['payload']})")
+                            else:
+                                eval(f"{keybind.payload['stop_function']['function']}()")
+                    except:
+                        pass
+
 
 if __name__ == '__main__':
     game = Game()
