@@ -13,6 +13,7 @@ class ControllerBind():
         self.action = action
         self.pin = pin
         self.payload = payload
+        self.pressed = False
         self.button = Button(self.pin, pull_up = True)
 
 class ControllerHandler():

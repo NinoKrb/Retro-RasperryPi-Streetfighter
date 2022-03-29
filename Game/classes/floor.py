@@ -15,8 +15,8 @@ class Floor(pygame.sprite.Sprite):
         self.set_pos(*self.pos)
 
     def update_surface(self, size):
-        #self.image = pygame.Surface(size, pygame.SRCALPHA, 32) #32
-        self.image = pygame.Surface(size)
+        self.image = pygame.Surface(size, pygame.SRCALPHA, 32)
+        #self.image = pygame.Surface(size)
         self.image = self.image.convert_alpha()
         self.rect = self.image.get_rect()
 
