@@ -16,9 +16,6 @@ class Arena():
         self.floor = Floor((floor_pos), floor_size)
         self.background = Background(image)
 
-    def update(self):
-        pass
-
     def draw(self, screen):
         self.background.draw(screen)
         self.floor.draw(screen)

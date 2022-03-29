@@ -2,7 +2,8 @@ import pygame, os
 from settings import Settings
 
 class Overlay():
-    def __init__(self, player_1, player_2):
+    def __init__(self, game, player_1, player_2):
+        self.game = game
         self.player_1 = player_1
         self.player_2 = player_2
 
@@ -10,7 +11,7 @@ class Overlay():
 
         self.elements = []
         self.elements.append(Avatar('player_1', self.player_1.avatar_image, Settings.avatar_size, (50,50)))
-        self.elements.append(Avatar('player_2', self.player_2.avatar_image, Settings.avatar_size, (Settings.window_width - 50 - Settings.avatar_size[0],50), True))
+        self.elements.append(Avatar('player_2', self.player_2.avatar_image, Settings.avatar_size, (Settings.window_width - 50 - Settings.avatar_size[0],50)))
 
         self.elements.append(self.header_text)
 
@@ -87,6 +88,7 @@ class Healthbar(pygame.sprite.Sprite):
             self.health_surface['surface'] = pygame.transform.scale(self.health_surface['surface'], (health // Settings.healthbar_width_factor, self.health_surface['rect'].height))
         except:
             self.overlay.header_text.update('Game Over', (255,255,255), 50, Settings.window_width // 2)
+            self.overlay.game.gameover = True
 
     def draw(self, screen):
         screen.blit(self.max_surface['surface'], self.max_surface['rect'])
