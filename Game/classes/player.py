@@ -17,17 +17,35 @@ class Player(pygame.sprite.Sprite):
         # Essential
         self.id = id
 
-        # Sprite
-        self.fallback_image = player_images['fallback']
-        self.avatar_image = player_images['avatar']
-        self.size = size
-        self.colorkey = colorkey
+        # Default Values
+        self.default_fallback_image = player_images['fallback']
+        self.default_avatar_image = player_images['avatar']
+        self.default_size = size
+        self.default_colorkey = colorkey
+        self.default_speed = speed
+        self.default_pos = { 'x': pos[0], 'y': pos[1] }
+        print('Init',self.default_pos)
+        self.default_flip = flip
+        self.default_health = health
+        self.default_max_health = health
+        self.default_attacks = attacks
+        self.default_animation_set = self.load_animation_set(animations)
+        
+        # Reset Player Values
+        self.reset()
 
+    def reset(self):
+        # Sprite
+        self.fallback_image = self.default_fallback_image
+        self.avatar_image = self.default_avatar_image
+        self.size = self.default_size
+        self.colorkey = self.default_colorkey
+        
         # Movement
-        self.speed = speed
-        self.pos = { 'x': pos[0], 'y': pos[1] }
+        self.speed = self.default_speed
+        self.pos = self.default_pos
         self.direction = None
-        self.flip = flip
+        self.flip = self.default_flip
         self.freeze = False
 
         # Gravity
@@ -38,18 +56,20 @@ class Player(pygame.sprite.Sprite):
         self.jumps_left = 2
 
         # Fight
-        self.health = health
-        self.max_health = health
-        self.attacks = attacks
+        self.health = self.default_health
+        self.max_health = self.default_health
+        self.attacks = self.default_attacks
         self.current_attack = None
         self.is_attacking = False
-
+        
         # Animation & Actions
-        self.animation_set = self.load_animation_set(animations)
+        self.animation_set = self.default_animation_set
         self.action_manager = Action({ 'name': 'idle', 'loop': False })
         self.animation_set.change_current_animation(self.action_manager.current_action['name'])
         self.update_sprite(os.path.join('players', f'player_{self.id}', self.fallback_image))
 
+        self.set_pos(self.default_pos['x'], self.default_pos['y'])
+        
     def load_animation_set(self, animations):
         animation_objects = []
         for animation in animations:
@@ -71,8 +91,7 @@ class Player(pygame.sprite.Sprite):
     def update_sprite(self, filename):
         self.image = pygame.image.load(os.path.join(Settings.path_image, filename)).convert_alpha()
         self.image = pygame.transform.scale(self.image, self.size)
-        if self.flip:
-            self.image = pygame.transform.flip(self.image, self.flip, False)
+        self.image = pygame.transform.flip(self.image, self.flip, False)
         self.image.set_colorkey(self.colorkey)
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
@@ -175,30 +194,41 @@ class Player(pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
 
     def handle_movement(self, payload):
-        self.change_direction(payload['direction'])
-        self.flip = payload['flip']
+        if not self.moving[str(payload['direction'])]:
+            self.change_direction(payload['direction'])
+            self.flip = payload['flip']
 
-        self.move_direction()
-        self.action_manager.force_change_action(payload['animation'], payload['loop'])
-        self.animation_set.change_current_animation(self.action_manager.current_action['name'])
+            self.move_direction()
+            self.action_manager.force_change_action(payload['animation'], payload['loop'])
+            self.animation_set.change_current_animation(self.action_manager.current_action['name'])
+        else:
+            print("Already Moving")
 
     def stop_handle_movement(self, payload):
         self.stop_move_direction(payload['direction'])
 
-        if not self.is_jumping:
-            self.action_manager.reset_action()
-            self.action_manager.clear_queue()
+        if not self.moving['left'] and not self.moving['right']:
+            if not self.is_jumping:
+                self.action_manager.reset_action()
+                self.action_manager.clear_queue()
 
-        if self.is_attacking:
-            self.is_attacking = False
-            self.freeze = False
-        self.animation_set.change_current_animation(self.action_manager.current_action['name'])
+            if self.is_attacking:
+                self.is_attacking = False
+                self.freeze = False
+
+
+        if self.moving['left']:
+            self.flip = True
+
+        else:
+            self.flip = False
 
     def handle_attack(self, payload):
-        self.is_attacking = True
-        self.current_attack = self.find_attack(payload['animation'])
-        self.action_manager.force_change_action(payload['animation'], payload['loop'])
-        self.animation_set.change_current_animation(self.action_manager.current_action['name'])
+        if not self.is_attacking:
+            self.current_attack = self.find_attack(payload['animation'])
+            self.action_manager.force_change_action(payload['animation'], payload['loop'])
+            self.animation_set.change_current_animation(self.action_manager.current_action['name'])
+            self.is_attacking = True
 
     def find_attack(self, action_name):
         for attack in self.attacks:
@@ -206,7 +236,7 @@ class Player(pygame.sprite.Sprite):
                 return attack
 
     def check_fight_collision(self):
-        hits = pygame.sprite.spritecollide(self, self.game.players, False, pygame.sprite.collide_circle_ratio(0.35))
+        hits = pygame.sprite.spritecollide(self, self.game.players, False, pygame.sprite.collide_circle_ratio(Settings.player_collide_ratio))
         for hit in hits:
             if hit != self and hit.is_attacking:
                 self.handle_hit(hit, hit.current_attack)
