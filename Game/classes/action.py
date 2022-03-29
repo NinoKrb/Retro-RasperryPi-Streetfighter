@@ -30,4 +30,4 @@ class Action():
             return self.next_action
 
         else:
-            return False
+            False
