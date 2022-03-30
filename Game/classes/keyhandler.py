@@ -4,8 +4,6 @@ currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
-from settings import Settings
-
 class KeyBind():
     def __init__(self, event, key, type, action, payload=None):
         self.event = event

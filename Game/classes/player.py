@@ -1,4 +1,3 @@
-from operator import ne
 import os,sys,pygame
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
